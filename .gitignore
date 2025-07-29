@@ -1,3 +1,7 @@
 # Virtual Environment
 .env
 venv/
+*.xlsx
+*.txt
+*.rar
+*.zip
