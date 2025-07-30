@@ -196,7 +196,7 @@ Response format:
 # =============================================================================
 
 INITIAL_CONTEXT_TEMPLATE = """
-You are an expert financial market analyst specialized in futures markets. Review the historical market data provided and create a concise summary of market conditions.
+You are an expert financial market analyst specialized in futures markets. Review the historical market data provided and create a concise of market conditions.
 
 # Historical Market Data
 {historical_data}
@@ -318,8 +318,8 @@ Calculate confidence level from -100 (strong bearish) to +100 (strong bullish):
 2. ENTROPY FACTOR (Market Quality):
    - Entropy < 0.60: +50 points (excellent trend)
    - Entropy 0.60-0.70: +30 points (good trend)
-   - Entropy 0.70-0.75: +10 points (forming trend)
-   - Entropy 0.75-0.85: 0 points (sideways)
+   - Entropy 0.70-0.75: +20 points (forming trend)
+   - Entropy 0.75-0.85: +20 points (sideways)
    - Entropy > 0.85: BLOCK OPERATION (return 0 confidence)
    
    - If entropy STRONGLY_DECREASING: +20 (trend forming rapidly)
@@ -349,21 +349,6 @@ Calculate confidence level from -100 (strong bearish) to +100 (strong bullish):
    - ATR DECREASING: -10 (consolidation)
    - ATR STRONGLY_DECREASING: -15 (momentum loss)
 
-6. H4 CONTEXT ADJUSTMENT:
-   - If H4 trend matches current direction: +20
-   - If H4 opposes current direction: -10 (but current timeframe has priority)
-
-7. FINAL CHECK:
-   - Apply consistency bonus: High consistency (>80%) in indicator directions: +10
-   - Ensure final confidence value is between -100 and +100
-
-## POSITION SIZING BASED ON CONFIDENCE
-
-- |Confidence| >= 60: 20% of max contracts
-- |Confidence| >= 50: 10% of max contracts  
-- |Confidence| >= 45: 5% of max contracts
-- |Confidence| >= 40: 5% of max contracts
-- |Confidence| < 40: 0 contracts (WAIT)
 
 ## CONFIDENCE OUTPUT REQUIRED
 

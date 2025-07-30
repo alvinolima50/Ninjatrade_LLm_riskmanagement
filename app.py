@@ -1382,7 +1382,9 @@ def analyze_market(symbol, timeframe):
     
     try:
         with get_openai_callback() as cb:
-            response = llm_chain.invoke({
+            print("\n===== ENVIANDO DADOS PARA LLM =====")
+            print("Dados sendo enviados:")
+            input_data = {
                 "symbol": symbol,
                 "h4_context": h4_market_context_summary,
                 "current_timeframe_data": current_timeframe_data_str,
@@ -1395,8 +1397,14 @@ def analyze_market(symbol, timeframe):
                 "entry_price": entry_price,
                 "current_price": current_price,
                 "position_profit_loss": position_profit_loss
-            })
+            }
+            print(json.dumps(input_data, indent=2))
             
+            response = llm_chain.invoke(input_data)
+            
+            print("\n===== RESPOSTA DO LLM =====")
+            print(response.content)
+            print("=========FIM DA RESPOSTA==============\n")
             # Log token usage
             print(f"\n===== ANÁLISE PRINCIPAL TOKEN USAGE =====")
             print(f"Prompt tokens: {cb.prompt_tokens}")
@@ -1475,7 +1483,7 @@ CONFIDENCE CALCULATION:
         confidence_level = combined_confidence
         market_direction = combined_direction
         
-        # Construir resposta final
+        # Construir resposta final _________________________________________________________________________________________________________
         final_analysis = {
             "market_summary": llm_analysis.get('market_summary', 'No summary provided'),
             "confidence_level": combined_confidence,
@@ -2716,15 +2724,15 @@ def get_current_candle_data(symbol, timeframe):
             },
             
             # HISTÓRICO DINÂMICO - CHAVE DO SISTEMA
-            "indicator_progression": {
-                "atr_values": [round(val, 4) for val in historical_atr],
-                "entropy_values": [round(val, 4) for val in historical_entropy],
-                "slope_values": [round(val, 5) for val in historical_slope],
-                "ema9_values": [round(val, 4) for val in historical_ema9],
-                "close_values": [round(val, 4) for val in historical_close],
-                "timestamps": historical_timestamps,
-                "total_periods": len(historical_timestamps)
-            },
+            # "indicator_progression": {
+            #     "atr_values": [round(val, 4) for val in historical_atr],
+            #     "entropy_values": [round(val, 4) for val in historical_entropy],
+            #     "slope_values": [round(val, 5) for val in historical_slope],
+            #     "ema9_values": [round(val, 4) for val in historical_ema9],
+            #     "close_values": [round(val, 4) for val in historical_close],
+            #     "timestamps": historical_timestamps,
+            #     "total_periods": len(historical_timestamps)
+            # },
             
             # Análise de tendências com resultados simples
             "progression_analysis": {
@@ -3320,7 +3328,7 @@ app.layout = dbc.Container(fluid=True, children=[
                     dbc.Row([
                         dbc.Col([
                             html.Label("Asset Symbol:"),
-                            dbc.Input(id="symbol-input", type="text", value="NGEQ25", placeholder="Enter symbol (e.g., EURUSD)"),
+                            dbc.Input(id="symbol-input", type="text", value="NGEU25", placeholder="Enter symbol (e.g., EURUSD)"),
                         ], width=6),
                         dbc.Col([
                             html.Label("Timeframe:"),
@@ -4060,7 +4068,7 @@ def handle_trading_controls(start_clicks, stop_clicks, symbol, timeframe, max_co
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
     if triggered_id == "start-button" and start_clicks and symbol and timeframe:
-        max_contracts = max_contracts_input or 5
+        max_contracts = max_contracts_input or 20
         use_initial_context_enabled = use_context
         
         if initialize_mt5():
@@ -4122,7 +4130,7 @@ def control_trading(start_clicks, stop_clicks, symbol, timeframe, use_context):
             try:
                 print("Getting initial market context...")
                 # Get historical data for H4 timeframe
-                historical_data = get_initial_context(symbol, "H4", num_candles=20)#__________________________________________________________ quantia de candles para a analize H4 do langchain
+                historical_data = get_initial_context(symbol, "H4", num_candles=10)#__________________________________________________________ quantia de candles para a analize H4 do langchain
                 print("\n====== EXACT DATA BEING SENT TO LLM FOR H4 ANALYSIS ======")
                 print(historical_data)
                 print("\n====== END OF EXACT DATA ======\n")
