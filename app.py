@@ -87,6 +87,7 @@ app.index_string = '''
 </html>
 '''
 # Global variables
+confidence_history = {}
 dynamic_analyzer = None  # Para o dynamic chart analyzer
 # Criar o componente do dynamic chart
 dynamic_chart_component, dynamic_analyzer = create_dynamic_chart_component()
@@ -1287,7 +1288,7 @@ def analyze_market(symbol, timeframe):
     Análise de mercado utilizando tanto o LLM quanto o cálculo direto de confluência
     """
     global llm_reasoning, confidence_level, market_direction, llm_chain
-    global h4_market_context_summary
+    global h4_market_context_summary, confidence_history
     print(f"DEBUG: Analisando mercado com posição atual: {current_position} contratos")
     debug_print(f"Analyzing market with current position: {current_position} contracts", "info")
     # Verificar se o contexto H4 narrativo foi inicializado
@@ -1439,7 +1440,22 @@ def analyze_market(symbol, timeframe):
                                 LLM_WEIGHT    * llm_confidence)
         debug_print(f"DEBUG: Calculated confidence: {combined_confidence} (Direct: {direct_confidence}, LLM: {llm_confidence})")
 
-        
+        try:
+            # Obter timestamp do candle atual
+            current_rates = mt5.copy_rates_from_pos(symbol, timeframe_dict[timeframe], 1, 1)
+            if current_rates and len(current_rates) > 0:
+                candle_timestamp = pd.to_datetime(current_rates[0]['time'], unit='s')
+                confidence_history[candle_timestamp] = combined_confidence
+                print(f"📊 Armazenando confiança {combined_confidence} para candle {candle_timestamp}")
+                
+                # Limpar entradas antigas (manter apenas últimos 200 candles)
+                if len(confidence_history) > 200:
+                    sorted_timestamps = sorted(confidence_history.keys())
+                    for old_timestamp in sorted_timestamps[:-200]:
+                        del confidence_history[old_timestamp]
+        except Exception as e:
+            print(f"⚠️ Erro ao armazenar confiança no histórico: {e}")
+
         # Ajustar para direção consistente
         if combined_confidence > 0:
             combined_direction = "Bullish"
@@ -1489,7 +1505,7 @@ CONFIDENCE CALCULATION:
         confidence_level = combined_confidence
         market_direction = combined_direction
         
-        # Construir resposta final _________________________________________________________________________________________________________
+        # Construir resposta final DO PROCESSAMENTO TOTAL____________________________________________________________________________
         final_analysis = {
             "market_summary": llm_analysis.get('market_summary', 'No summary provided'),
             "confidence_level": combined_confidence,
@@ -3800,10 +3816,12 @@ def update_price_chart(n_intervals, symbol, timeframe):
         
         # Create custom hover text with indicators included
         global confidence_level
+        global confidence_history
         hovertext = []
         for i in range(len(df)):
             date_str = df['time'].iloc[i].strftime('%b %d, %Y, %H:%M')
-            current_confidence = confidence_level
+            candle_time = df['time'].iloc[i]
+            current_confidence = confidence_history.get(candle_time, 0)  # 0 se não houver análise
             hover_info = (
                 f"Date: {date_str}<br>" +
                 f"Open: {df['open'].iloc[i]:.4f}<br>" +

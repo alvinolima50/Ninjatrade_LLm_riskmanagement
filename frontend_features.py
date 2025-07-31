@@ -9,8 +9,8 @@ import time
 
 # Initialize a global log buffer to store debug messages with expiration
 debug_log_buffer = []
-MAX_LOG_ENTRIES = 100  # Maximum number of log entries to keep in buffer
-MESSAGE_LIFETIME_SECONDS = 600  # Time in seconds before a message is automatically removed
+MAX_LOG_ENTRIES = 10000  # Maximum number of log entries to keep in buffer
+MESSAGE_LIFETIME_SECONDS = 10000  # Time in seconds before a message is automatically removed
 
 def create_debug_area():
     """
