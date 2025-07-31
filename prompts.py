@@ -254,14 +254,14 @@ P&L: ${position_profit_loss}
 
 ### PRIMARY INDICATORS (Current {timeframe} timeframe):
 
-1. ENTROPY (Critical for Market Quality):
+1. ENTROPY (Critical for Market Quality - NOT a directional indicator):
 - Below 0.6000: Strong directional trend - HIGHLY FAVORABLE FOR TRADING
 - 0.6000-0.7500: Moderate trending movement - FAVORABLE FOR TRADING
 - 0.7500-0.8500: Weak trend, early choppy conditions - CAUTION (possible trend formation)
 - Above 0.8500: Choppy/sideways market - AVOID TRADING
 - Above 0.9000: Extreme sideways market - BLOCK ALL OPERATIONS
 
-2. SLOPE (Directional Strength):
+2. SLOPE (Directional Strength - IS a directional indicator):
 - Strong Positive (> +0.00010): Strong uptrend acceleration - STRONGLY BULLISH
 - Moderate Positive (+0.00005 to +0.00010): Moderate uptrend - BULLISH
 - Weak Positive (+0.00001 to +0.00005): Weak uptrend - SLIGHTLY BULLISH
@@ -270,13 +270,13 @@ P&L: ${position_profit_loss}
 - Moderate Negative (-0.00005 to -0.00010): Moderate downtrend - BEARISH
 - Strong Negative (< -0.00010): Strong downtrend acceleration - STRONGLY BEARISH
 
-3. EMA9 Relationship:
+3. EMA9 Relationship (Directional indicator):
 - Price above EMA9: Short-term bullish bias
 - Price below EMA9: Short-term bearish bias
 - Recent crossover: Potential trend change
 - Distance from EMA9: Indicates momentum strength
 
-4. ATR (Volatility Context):
+4. ATR (Volatility Context - NOT a directional indicator):
 - Average ATR range: 0.0074 (calm market) to 0.0220 (volatile market)
 - ATR below 0.0100: Low volatility, potential consolidation
 - ATR 0.0100-0.0150: Normal volatility, good for trend following
@@ -313,48 +313,27 @@ Each indicator includes historical progression data (last 10+ periods) showing:
 
 Calculate confidence level from -100 (strong bearish) to +100 (strong bullish):
 
-1. START AT ZERO (0) - neutral baseline
+1. **START WITH DIRECTIONAL ANALYSIS**:
 
-2. ENTROPY FACTOR (Market Quality):
-   - Entropy < 0.60: +50 points (excellent trend)
-   - Entropy 0.60-0.70: +30 points (good trend)
-   - Entropy 0.70-0.75: +20 points (forming trend)
-   - Entropy 0.75-0.85: +20 points (sideways)
-   - Entropy > 0.85: BLOCK OPERATION (return 0 confidence)
-   
-   - If entropy STRONGLY_DECREASING: +20 (trend forming rapidly)
-   - If entropy DECREASING: +10 (trend forming)
-   - If entropy INCREASING: -10 (trend weakening)
-   - If entropy STRONGLY_INCREASING: -20 (trend breaking down)
+2. **APPLY MARKET QUALITY MULTIPLIERS** (these modify the magnitude of confidence, not the direction):
 
-3. DIRECTIONAL FACTORS:
-   - Slope > +0.00010: +50 (strong bullish)
-   - Slope +0.00005 to +0.00010: +30 (moderate bullish)
-   - Slope +0.00001 to +0.00005: +15 (weak bullish)
-   - Slope -0.00001 to -0.00005: -15 (weak bearish)
-   - Slope -0.00005 to -0.00010: -30 (moderate bearish)
-   - Slope < -0.00010: -50 (strong bearish)
-   
-   - If slope trend matches direction: +15 to +25
-   - If slope trend opposes direction: -10
-
-4. EMA9 CONFIRMATION:
-   - Price/EMA9 confirms slope direction: +30
-   - Price/EMA9 diverges from slope: -15 (potential reversal)
-   - Price/EMA9 in neutral market: ±10 based on position
-
-5. ATR VOLATILITY:
-   - ATR INCREASING with clear trend: +20
-   - ATR STABLE with trend: +10
-   - ATR DECREASING: -10 (consolidation)
-   - ATR STRONGLY_DECREASING: -15 (momentum loss)
-
+3. **FINAL CALCULATION**:
+   - Start with Base Directional Score (step 1)
+   - Apply Entropy Multiplier to modify score magnitude
+   - Apply ATR Multiplier to further modify score magnitude
+   - Round to nearest integer
+   - Apply min/max bounds of -100/+100
+   Example calculation:
+   - Base Directional Score: +40 (moderately bullish from Slope and EMA)
+   - Entropy: 0.65 → 1.30 multiplier
+   - Entropy Trend: DECREASING → +0.10 bonus
+   - ATR: 0.016 and INCREASING → 1.20 multiplier
+   - Final Calculation: 40 * (1.30 + 0.10) * 1.20 = 67.2 → 67 (rounded)
+   - Confidence: +67 (strong bullish)
 
 ## CONFIDENCE OUTPUT REQUIRED
 
 Return a confidence score between -100 (strongly bearish) and +100 (strongly bullish) that represents your analysis of current market conditions.
-
-Focus on the QUALITATIVE ANALYSIS provided in trend_analysis_details which gives expert interpretation of each indicator's behavior and market implications.
 
 # REQUIRED RESPONSE FORMAT
 
@@ -375,8 +354,6 @@ Return in JSON:
 }}
 }}
 """
-
-
 
 # =============================================================================
 # CREATE PROMPT TEMPLATES

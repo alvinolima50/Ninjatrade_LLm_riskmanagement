@@ -431,10 +431,14 @@ def log_candle_data(symbol, timeframe, candle_data, analysis, file_path=None, on
             # LLM analysis
             "market_summary": analysis.get("market_summary", ""),
             "confidence_level": analysis.get("confidence_level", 0),
+            "direct_confidence": analysis.get("direct_confidence", 0),
+            "llm_confidence": analysis.get("llm_confidence", 0),
+
             "direction": analysis.get("direction", "Neutral"),
             "action": analysis.get("action", "WAIT"),
             "contracts_to_adjust": analysis.get("contracts_to_adjust", 0),
             "reasoning": analysis.get("reasoning", "")[:500]  # Limit reasoning length
+           
         }
         
         # Create DataFrame with this row
@@ -1330,6 +1334,8 @@ def analyze_market(symbol, timeframe):
             log_candle_data(symbol, timeframe, current_timeframe_data_str, {
                 "market_summary": "Ordem bloqueada - entropia muito alta",
                 "confidence_level": 0,
+                "direct_confidence": direct_confidence,  # Adicionar esta linha
+                "llm_confidence": 0,    
                 "direction": "Neutral",
                 "action": "WAIT",
                 "reasoning": direct_reason,
@@ -1487,6 +1493,8 @@ CONFIDENCE CALCULATION:
         final_analysis = {
             "market_summary": llm_analysis.get('market_summary', 'No summary provided'),
             "confidence_level": combined_confidence,
+            "direct_confidence": direct_confidence,    # Adicionando direct_confidence ao resultado
+            "llm_confidence": llm_confidence, 
             "direction": combined_direction,
             "action": combined_action,
             "reasoning": combined_reasoning,
