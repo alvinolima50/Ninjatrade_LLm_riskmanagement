@@ -3850,7 +3850,6 @@ def update_price_chart(n_intervals, symbol, timeframe):
             ),
             row=1, col=1
         )
-        
         # Add EMA to price chart
         fig.add_trace(
             go.Scatter(
@@ -4126,7 +4125,7 @@ def handle_trading_controls(start_clicks, stop_clicks, symbol, timeframe, max_co
     
     elif triggered_id == "stop-button" and stop_clicks:
         running = False
-        print("🛑 Trading stopped by user")
+        debug_print("🛑 Trading stopped by user")
         return False, True  # Start enabled, Stop disabled
     
     return False, True
