@@ -2606,7 +2606,7 @@ def calculate_trend(values, min_periods=10, significance_threshold=0.015, indica
         trend = "STABLE"
     
     # Formatar valores para análise qualitativa
-    values_str = ", ".join([f"{v:.6f}" for v in recent_values])
+    values_str = ", ".join([f"{v:.10f}" for v in recent_values])
     percent_str = f"{percent_change * 100:.1f}"
     consistency_str = f"{consistency * 100:.0f}"
     
